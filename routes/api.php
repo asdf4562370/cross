@@ -7,8 +7,7 @@ Route::group(['middleware' => ['signature']], function () {
         Route::group(['prefix' => 'trade', 'namespace' => 'Trade'], function () {
             //账单
             Route::get('bill', 'BillController@dailyBill');
-
-        });
+            });
 
     });
 });
