@@ -9,5 +9,12 @@ Route::group(['middleware' => ['signature']], function () {
             Route::get('bill', 'BillController@dailyBill');
             });
 
+        //视频相关
+        Route::group(['prefix' => 'videos', 'namespace' => 'Videos'], function () {
+            //各种协议
+            Route::get('publishing-rule', 'ProtocolController@publishingRule');
+
+
+        });
     });
 });
