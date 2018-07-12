@@ -10,5 +10,12 @@ Route::group(['middleware' => ['signature']], function () {
 
         });
 
+        //视频相关
+        Route::group(['prefix' => 'videos', 'namespace' => 'Videos'], function () {
+            //各种协议
+            Route::get('publishing-rule', 'ProtocolController@publishingRule');
+
+
+        });
     });
 });
