@@ -1,27 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="grey"/>
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="format-detection" content="telephone=no"/>
-    <title>账单</title>
-    <style>
-        * {
-            -webkit-touch-callout:none;
-            -webkit-user-select:none;
-            -khtml-user-select:none;
-            -moz-user-select:none;
-            -ms-user-select:none;
-            user-select:none;
-        }
-        body {
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
+
+@section('title', '账单')
+
+@section('body')
     @if ($info)
         <div style="font-size: 18px;padding-top: 30px;text-align: center;">{{ $info }}</div>
     @else
@@ -60,16 +41,16 @@
 
                         <td style="width: 100px;">
                             <div style="text-align: right;padding: 5px 0;font-size: 16px;">
-                            @if ($data["amount"] > 0)
-                                <span style="color:red;font-weight: bolder;">+{{ $data["amount"] }}</span>
-                            @else
-                                <span style="font-weight: bolder;">{{ $data["amount"] }}</span>
-                            @endif
-                            @if ($data["currency"] == "diamond")
-                                钻石
-                            @else
-                                点券
-                            @endif
+                                @if ($data["amount"] > 0)
+                                    <span style="color:red;font-weight: bolder;">+{{ $data["amount"] }}</span>
+                                @else
+                                    <span style="font-weight: bolder;">{{ $data["amount"] }}</span>
+                                @endif
+                                @if ($data["currency"] == "diamond")
+                                    钻石
+                                @else
+                                    点券
+                                @endif
                             </div>
                             <div style="text-align: right;color: grey;">余额: {{ $data["balance"] }}</div>
 
@@ -79,5 +60,4 @@
             </div>
         @endforeach
     @endif
-</body>
-</html>
+@stop
