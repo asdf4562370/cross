@@ -1,19 +1,19 @@
     @extends('layouts.app')
-    @section('title','视频发布规则')
-    @section('spcipt')
+    @section('head')
+        <style type="text/css">
         #wrapper {
-            position: static;
-            width: 380px;
-            margin: 0 auto;//水平居中
-            padding: 50px 0;
+        position: static;
+        width: 380px;
+        margin: 0 auto;//水平居中
+        padding: 50px 0;
         }
         #source{width:auto;}
         #source .code p{padding:7px 0;text-indent:28px;}
+        </style>
     @stop
-
+    @section('title','视频发布规则')
     @section('body')
-    <body id="white-bg">
-    <div id="wrapper">
+        <div id="wrapper">
         <div id="source">
             <h1 align="center">视频发布规则</h1>
             <div class="code">
@@ -36,5 +36,4 @@
             </div>
         </div>
     </div>
-    </body>
     @stop
