@@ -1,5 +1,5 @@
-    @extends('layouts.app')
-    @section('head')
+@extends('layouts.app')
+@section('head')
         <style type="text/css">
         #wrapper {
         position: static;
@@ -10,9 +10,9 @@
         #source{width:auto;}
         #source .code p{padding:7px 0;text-indent:28px;}
         </style>
-    @stop
-    @section('title','视频发布规则')
-    @section('body')
+@stop
+@section('title','视频发布规则')
+@section('body')
         <div id="wrapper">
         <div id="source">
             <h1 align="center">视频发布规则</h1>
@@ -36,4 +36,4 @@
             </div>
         </div>
     </div>
-    @stop
+@stop
