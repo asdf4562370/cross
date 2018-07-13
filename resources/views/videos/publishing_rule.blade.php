@@ -1,36 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="grey"/>
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="format-detection" content="telephone=no"/>
-    <title>账单</title>
-    <style>
-        * {
-            -webkit-touch-callout:none;
-            -webkit-user-select:none;
-            -khtml-user-select:none;
-            -moz-user-select:none;
-            -ms-user-select:none;
-            user-select:none;
-        }
-        body {
-            font-size: 14px;
-        }
+    @extends('layouts.app')
+    @section('head')
+        @stop
+    @section('title')
+    视频发布规则
+    @stop
+    @section('spcipt')
         #wrapper {
             position: static;
             width: 380px;
             margin: 0 auto;//水平居中
-        padding: 50px 0;
+            padding: 50px 0;
         }
         #source{width:auto;}
         #source .code p{padding:7px 0;text-indent:28px;}
-    </style>
-</head>
+    @stop
 
-<body id="white-bg">
+    @section('body')
+    <body id="white-bg">
     <div id="wrapper">
         <div id="source">
             <h1 align="center">视频发布规则</h1>
@@ -54,5 +42,6 @@
             </div>
         </div>
     </div>
-</body>
+    </body>
+    @stop
 </html>
