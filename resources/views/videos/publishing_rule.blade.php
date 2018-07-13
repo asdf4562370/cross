@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('head')
     <style type="text/css">
         #wrapper {
@@ -16,7 +17,9 @@
         }
     </style>
 @stop
+
 @section('title','视频发布规则')
+
 @section('body')
     <div id="wrapper">
         <div id="source">
