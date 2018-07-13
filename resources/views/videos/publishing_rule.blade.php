@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('head')
-        <style type="text/css">
+    <style type="text/css">
         #wrapper {
         position: static;
         width: 380px;
@@ -9,11 +9,11 @@
         }
         #source{width:auto;}
         #source .code p{padding:7px 0;text-indent:28px;}
-        </style>
+    </style>
 @stop
 @section('title','视频发布规则')
 @section('body')
-        <div id="wrapper">
+    <div id="wrapper">
         <div id="source">
             <h1 align="center">视频发布规则</h1>
             <div class="code">
