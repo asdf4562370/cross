@@ -1,11 +1,5 @@
-<!DOCTYPE html>
-<html>
     @extends('layouts.app')
-    @section('head')
-        @stop
-    @section('title')
-    视频发布规则
-    @stop
+    @section('title','视频发布规则')
     @section('spcipt')
         #wrapper {
             position: static;
@@ -44,4 +38,3 @@
     </div>
     </body>
     @stop
-</html>
