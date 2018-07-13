@@ -8,7 +8,7 @@
     <meta name="format-detection" content="telephone=no"/>
     <title>账单</title>
     <style>
-        * {
+        *{
             -webkit-touch-callout:none;
             -webkit-user-select:none;
             -khtml-user-select:none;
