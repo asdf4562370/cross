@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\videos;
+namespace App\Http\Controllers\Api\Videos;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
