@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 
 class ProtocolController extends Controller
 {
-    public function publishingRule(){
-    return view('videos.publishing_rule');
-}
+    public function publishingRule()
+    {
+        return view('videos.publishing_rule');
+    }
 }
