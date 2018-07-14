@@ -16,5 +16,13 @@ Route::group(['middleware' => ['signature']], function () {
 
 
         });
+
+        //资产
+        Route::group(['prefix' => 'assets', 'namespace' => 'Assets'], function () {
+            //我的钱包
+            Route::post('my-wallet', 'WalletController@myWallet');
+
+        });
+
     });
 });
