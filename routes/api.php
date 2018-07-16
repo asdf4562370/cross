@@ -23,6 +23,15 @@ Route::group(['middleware' => ['signature']], function () {
             Route::post('my-wallet', 'WalletController@myWallet');
 
         });
+        
+        //消息通知
+        Route::group(['prefix' => 'message', 'namespace' => 'Message'], function () {
+            //列表
+            Route::post('pull', 'MessageController@pull');
+
+            Route::get('test', 'MessageController@test');
+
+        });
 
     });
 });
