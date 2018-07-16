@@ -23,7 +23,7 @@ Route::group(['middleware' => ['signature']], function () {
             Route::post('my-wallet', 'WalletController@myWallet');
 
         });
-        
+
         //消息通知
         Route::group(['prefix' => 'message', 'namespace' => 'Message'], function () {
             //列表

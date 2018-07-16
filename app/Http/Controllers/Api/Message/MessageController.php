@@ -22,18 +22,19 @@ class MessageController
                 "title" => "卖出 我不是药神 ×1",
                 "content" => "您的视频 【我不是药神】 于".date("Y-m-d H:i:s")."成功售出，".$r."元已入账。",
             ];
-            User::find($request->uid)->notify(new SystemMessage($msg));
+            $userObj = User::where(["uid"=>$request->uid])->first();
+            $userObj->notify(new SystemMessage($msg));
         }
     }
 
     public function pull(Request $request) {
         $perPage = 10;
-
         if (is_null($request->uid)) {
             $code = 1000;
             $info = "Token does not exist";
         } else {
-            $notifiyObj = User::find($request->uid)->notifications()->paginate($perPage);
+            $userObj = User::where(["uid"=>$request->uid])->first();
+            $notifiyObj = $userObj->notifications()->paginate($perPage);
             $data = [];
             if ($notifiyObj->isNotEmpty()) {
                 $notifiy = $notifiyObj->toArray();
