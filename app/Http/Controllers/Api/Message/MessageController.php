@@ -11,6 +11,9 @@ namespace App\Http\Controllers\Api\Message;
 use App\Models\User;
 use App\Notifications\SystemMessage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use PDOException;
 
 class MessageController
 {
@@ -79,6 +82,67 @@ class MessageController
             $data = $request->all();
             for ($i = 0; $i < count($data); $i++) {
                 $userObj->notifications()->where(['id' => $data[$i]])->delete();
+            }
+        }
+
+        return response()->json(compact('code', 'info', 'data'));
+    }
+
+    public function delete(Request $request) {
+        if (is_null($request->uid)) {
+            $code = 1000;
+            $info = "Token does not exit";
+        } else {
+            $validator = Validator::make($request->all(), [
+                'ids' => 'required'
+            ], [
+                'ids.required' => '消息ID不能为空',
+            ]);
+
+            if ($validator->fails()) {
+                $valimsg = $validator->messages();
+                if ($valimsg->has('ids')) {
+                    $code = 1001;
+                    $info = $valimsg->first('ids');
+                } else {
+                    $code = 1000;
+                    $info = "未知错误";
+                }
+            } else {
+                $ids = $request->input('ids');
+                $idArr = explode(",", $ids);
+                if (count($idArr) > 0) {
+                    try {
+                        DB::beginTransaction();
+                        $userObj = user::where(['uid' => $request->uid])->first();
+                        if (is_null($userObj)) {
+                            $code = 1003;
+                            $info = "用户信息丢失";
+                        } else {
+                            $n = 0;
+                            for ($i = 0; $i < count($idArr); $i++) {
+                                $affected = $userObj->notifications()->where(['id' => $idArr[$i]])->delete();
+                                $n += $affected;
+                            }
+                            if ($n == count($idArr)) {
+                                DB::commit();
+                                $code = 200;
+                                $info = '删除成功';
+                            } else {
+                                DB::rollback();
+                                $code = 1005;
+                                $info = '删除失败-2';
+                            }
+                        }
+                    } catch (PDOException $e) {
+                        DB::rollback();
+                        $code = 1004;
+                        $info = '删除失败-1';
+                    }
+                } else {
+                    $code = 1002;
+                    $info = "消息ID不存在";
+                }
             }
         }
 

@@ -26,8 +26,10 @@ Route::group(['middleware' => ['signature']], function () {
 
         //消息通知
         Route::group(['prefix' => 'message', 'namespace' => 'Message'], function () {
-            //列表
+            //消息列表
             Route::post('pull', 'MessageController@pull');
+            //删除消息
+            Route::post('del', 'MessageController@delete');
 
             Route::get('test', 'MessageController@test');
 
