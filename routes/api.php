@@ -31,6 +31,8 @@ Route::group(['middleware' => ['signature']], function () {
 
             Route::get('test', 'MessageController@test');
 
+            Route::post('delete','MessageController@delById');
+
         });
 
     });
