@@ -14,38 +14,71 @@ use Illuminate\Http\Request;
 
 class MessageController
 {
-    public function test(Request $request) {
-        for ($i=0;$i<5;$i++) {
-            $r = mt_rand(10,99);
-            $msg = [
-                "type" => "交易",
-                "title" => "卖出 我不是药神 ×1",
-                "content" => "您的视频 【我不是药神】 于".date("Y-m-d H:i:s")."成功售出，".$r."元已入账。",
-            ];
-            $userObj = User::where(["uid"=>$request->uid])->first();
-            $userObj->notify(new SystemMessage($msg));
+    public function test(Request $request)
+    {
+        if (is_null($request->uid)) {
+            $code = 1000;
+            $info = "Token does not exit";
+        } else {
+            $code = 200;
+            $info = "insert message success";
+            for ($i = 0; $i < 5; $i++) {
+                $r = mt_rand(10, 99);
+                $msg = [
+                    "type" => "交易",
+                    "title" => "卖出 我不是药神 ×1",
+                    "content" => "您的视频 【我不是药神】 于" . date("Y-m-d H:i:s") . "成功售出，" . $r . "元已入账。",
+                ];
+                $userObj = User::where(["uid" => $request->uid])->first();
+                $userObj->notify(new SystemMessage($msg));
+            }
         }
+
+        return response()->json(compact('code', 'info'));
     }
 
-    public function pull(Request $request) {
+    public function pull(Request $request)
+    {
         $perPage = 10;
         if (is_null($request->uid)) {
             $code = 1000;
             $info = "Token does not exist";
         } else {
-            $userObj = User::where(["uid"=>$request->uid])->first();
+            $code = 200;
+            $info = "null";
+            $userObj = User::where(["uid" => $request->uid])->first();
+            $userObj->unreadNotifications->MarkAsRead();
             $notifiyObj = $userObj->notifications()->paginate($perPage);
             $data = [];
             if ($notifiyObj->isNotEmpty()) {
                 $notifiy = $notifiyObj->toArray();
                 $list = $notifiy["data"];
-                for ($i=0;$i<count($list);$i++) {
+                for ($i = 0; $i < count($list); $i++) {
                     $data[$i]["id"] = $list[$i]["id"];
                     $data[$i]["type"] = $list[$i]["data"]["type"];
                     $data[$i]["title"] = $list[$i]["data"]["title"];
                     $data[$i]["content"] = $list[$i]["data"]["content"];
                     $data[$i]["date"] = $list[$i]["created_at"];
                 }
+            }
+        }
+
+        return response()->json(compact('code', 'info', 'data'));
+    }
+
+    public function delById(Request $request)
+    {
+        if (is_null($request->uid)) {
+            $code = 1000;
+            $info = "Token does not exit";
+        } else {
+            $code = 200;
+            $info = "delete success!";
+            $userObj = user::where(['uid' => $request->uid])->first();
+            print_r($request->all());
+            $data = $request->all();
+            for ($i = 0; $i < count($data); $i++) {
+                $userObj->notifications()->where(['id' => $data[$i]])->delete();
             }
         }
 
