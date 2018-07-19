@@ -47,21 +47,29 @@ class MessageController
             $code = 1000;
             $info = "Token does not exist";
         } else {
-            $code = 200;
-            $info = "null";
             $userObj = User::where(["uid" => $request->uid])->first();
-            $userObj->unreadNotifications->MarkAsRead();
-            $notifiyObj = $userObj->notifications()->paginate($perPage);
-            $data = [];
-            if ($notifiyObj->isNotEmpty()) {
-                $notifiy = $notifiyObj->toArray();
-                $list = $notifiy["data"];
-                for ($i = 0; $i < count($list); $i++) {
-                    $data[$i]["id"] = $list[$i]["id"];
-                    $data[$i]["type"] = $list[$i]["data"]["type"];
-                    $data[$i]["title"] = $list[$i]["data"]["title"];
-                    $data[$i]["content"] = $list[$i]["data"]["content"];
-                    $data[$i]["date"] = $list[$i]["created_at"];
+            if(is_null($userObj)){
+                $code = 1001;
+                $info = "用户信息丢失";
+            }
+            else {
+                $notifiyObj = $userObj->notifications()->paginate($perPage);
+                $data = [];
+                if ($notifiyObj->isNotEmpty()) {
+                    $userObj->unreadNotifications->MarkAsRead();
+                    $notifiy = $notifiyObj->toArray();
+                    $list = $notifiy["data"];
+                    for ($i = 0; $i < count($list); $i++) {
+                        $data[$i]["id"] = $list[$i]["id"];
+                        $data[$i]["type"] = $list[$i]["data"]["type"];
+                        $data[$i]["title"] = $list[$i]["data"]["title"];
+                        $data[$i]["content"] = $list[$i]["data"]["content"];
+                        $data[$i]["date"] = $list[$i]["created_at"];
+                    }
+                }
+                else{
+                    $code = "1002";
+                    $info = "暂无交易消息";
                 }
             }
         }
