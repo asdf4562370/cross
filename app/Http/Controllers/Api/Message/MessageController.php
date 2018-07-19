@@ -48,11 +48,10 @@ class MessageController
             $info = "Token does not exist";
         } else {
             $userObj = User::where(["uid" => $request->uid])->first();
-            if(is_null($userObj)){
+            if (is_null($userObj)) {
                 $code = 1001;
                 $info = "用户信息丢失";
-            }
-            else {
+            } else {
                 $notifiyObj = $userObj->notifications()->paginate($perPage);
                 $data = [];
                 if ($notifiyObj->isNotEmpty()) {
@@ -66,8 +65,7 @@ class MessageController
                         $data[$i]["content"] = $list[$i]["data"]["content"];
                         $data[$i]["date"] = $list[$i]["created_at"];
                     }
-                }
-                else{
+                } else {
                     $code = "1002";
                     $info = "暂无交易消息";
                 }
@@ -96,7 +94,8 @@ class MessageController
         return response()->json(compact('code', 'info', 'data'));
     }
 
-    public function delete(Request $request) {
+    public function delete(Request $request)
+    {
         if (is_null($request->uid)) {
             $code = 1000;
             $info = "Token does not exit";
