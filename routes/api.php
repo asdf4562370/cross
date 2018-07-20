@@ -14,6 +14,10 @@ Route::group(['middleware' => ['signature']], function () {
             //各种协议
             Route::get('publishing-rule', 'ProtocolController@publishingRule');
 
+            //发表评论
+            Route::post('comment', 'CommentController@comment');
+            //回复评论
+            Route::post('reply', 'CommentController@reply');
 
         });
 
