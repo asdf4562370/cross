@@ -11,7 +11,7 @@ namespace App\Http\Controllers\Api\Videos;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Video;
+use App\Models\VideoComment;
 
 class CommentController extends Controller
 {
@@ -21,42 +21,42 @@ class CommentController extends Controller
             $code = 1000;
             $info = "token does not exit";
         } else {
-            $videoObj = video::where(['pid' => $request->pid])->first();
-            if (is_null($videoObj)) {
+            if (is_null($request->pid)) {
                 $code = 1001;
-                $info = "该视频ID不存在";
+                $info = "请输入视频pid";
             } else {
                 $validator = Validator::make($request->all(), [
-                    'comment' => 'required'
+                    'contents' => 'required'
                 ], [
-                    'comment.required' => '留言不能为空',
+                    'contents.required' => '评论不能为空',
                 ]);
                 if ($validator->fails()) {
                     $valimsg = $validator->messages();
-                    if ($valimsg->has('comment')) {
+                    if ($valimsg->has('contents')) {
                         $code = 1002;
-                        $info = $valimsg->first('comment');
+                        $info = $valimsg->first('contents');
                     } else {
                         $code = 1003;
                         $info = "未知错误";
                     }
-                } else { 
-                    $videoComObj =$videoObj->hasManyComment()->first();
-                    $videoComObj->comment = $request->comment;
-                    $videoComObj->pid = $request->pid;
-                    $videoComObj->created_by = $videoObj->created_by;
-                    $videoComObj->parent_id = $request->uid;
-                    $videoComObj->save();
-                    if ($videoComObj->comment==$request->comment) {
+                } else {
+                    $videoComObj = videoComment::create([
+                        'pid' => $request->pid,
+                        'parent_id' => 0,
+                        'content' => $request->contents,
+                        'created_by' => 0,
+                    ]);
+                    if(is_null($videoComObj)){
+                        $code = 1004;
+                        $info = "评论失败";
+                    }else{
                         $code = 200;
                         $info = "评论成功";
-                    } else {
-                        $code = 1003;
-                        $info = "评论失败";
                     }
                 }
             }
         }
+
 
         return response()->json(compact('code', 'info', 'data'));
     }
