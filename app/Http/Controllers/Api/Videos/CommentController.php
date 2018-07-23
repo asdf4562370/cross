@@ -21,42 +21,49 @@ class CommentController extends Controller
             $code = 1000;
             $info = "token does not exit";
         } else {
-            if (is_null($request->pid)) {
-                $code = 1001;
-                $info = "请输入视频pid";
-            } else {
-                $validator = Validator::make($request->all(), [
-                    'contents' => 'required'
-                ], [
-                    'contents.required' => '评论不能为空',
-                ]);
-                if ($validator->fails()) {
-                    $valimsg = $validator->messages();
-                    if ($valimsg->has('contents')) {
-                        $code = 1002;
-                        $info = $valimsg->first('contents');
-                    } else {
-                        $code = 1003;
-                        $info = "未知错误";
-                    }
+            $validator = Validator::make($request->all(), [
+                'contents' => ['required', 'max:200'],
+                'pid' => 'required',
+                'nickname' => 'required'
+            ], [
+                'contents.required' => '评论不能为空',
+                'pid.required' => '视频pid不能为空',
+                'contents.max' => '评论长度不能超过200字',
+                'nickname.required' => '昵称不能为空',
+            ]);
+
+            if ($validator->fails()) {
+                $valimsg = $validator->messages();
+                if ($valimsg->has('contents')) {
+                    $code = 1002;
+                    $info = $valimsg->first('contents');
+                } else if ($valimsg->has('pid')) {
+                    $code = 1003;
+                    $info = $valimsg->first('pid');
+                } else if ($valimsg->has('nickname')) {
+                    $code = 1003;
+                    $info = $valimsg->first('nickname');
                 } else {
-                    $videoComObj = videoComment::create([
-                        'pid' => $request->pid,
-                        'parent_id' => 0,
-                        'content' => $request->contents,
-                        'created_by' => 0,
-                    ]);
-                    if(is_null($videoComObj)){
-                        $code = 1004;
-                        $info = "评论失败";
-                    }else{
-                        $code = 200;
-                        $info = "评论成功";
-                    }
+                    $code = 1003;
+                    $info = "未知错误";
+                }
+            } else {
+                $videoComObj = videoComment::create([
+                    'pid' => $request->pid,
+                    'parent_id' => 0,
+                    'content' => $request->contents,
+                    'created_by' => $request->uid,
+                    'nickname' =>$request->nickname,
+                ]);
+                if ($videoComObj) {
+                    $code = 200;
+                    $info = "评论成功";
+                } else {
+                    $code = 1004;
+                    $info = "数据连接失败";
                 }
             }
         }
-
 
         return response()->json(compact('code', 'info', 'data'));
     }
