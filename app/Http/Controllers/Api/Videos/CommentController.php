@@ -22,44 +22,47 @@ class CommentController extends Controller
             $info = "token does not exit";
         } else {
             $validator = Validator::make($request->all(), [
-                'contents' => ['required', 'max:200'],
+                'content' => ['required', 'max:200'],
                 'pid' => 'required',
-                'nickname' => 'required'
+                'nickname' => 'required',
             ], [
-                'contents.required' => '评论不能为空',
+                'content.required' => '评论不能为空',
                 'pid.required' => '视频pid不能为空',
-                'contents.max' => '评论长度不能超过200字',
+                'content.max' => '评论长度不能超过200字',
                 'nickname.required' => '昵称不能为空',
             ]);
 
             if ($validator->fails()) {
                 $valimsg = $validator->messages();
-                if ($valimsg->has('contents')) {
+                if ($valimsg->has('content')) {
                     $code = 1002;
-                    $info = $valimsg->first('contents');
+                    $info = $valimsg->first('content');
                 } else if ($valimsg->has('pid')) {
                     $code = 1003;
                     $info = $valimsg->first('pid');
                 } else if ($valimsg->has('nickname')) {
-                    $code = 1003;
+                    $code = 1004;
                     $info = $valimsg->first('nickname');
                 } else {
-                    $code = 1003;
+                    $code = 1005;
                     $info = "未知错误";
                 }
             } else {
+                $content = $request->input('content');
+                $nickname = $request->input('nickname');
+                $pid = $request->input('pid');
                 $videoComObj = videoComment::create([
-                    'pid' => $request->pid,
+                    'pid' => $pid,
                     'parent_id' => 0,
-                    'content' => $request->contents,
+                    'content' => $content,
                     'created_by' => $request->uid,
-                    'nickname' =>$request->nickname,
+                    'nickname' => $nickname,
                 ]);
                 if ($videoComObj) {
                     $code = 200;
                     $info = "评论成功";
                 } else {
-                    $code = 1004;
+                    $code = 1001;
                     $info = "数据连接失败";
                 }
             }
