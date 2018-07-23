@@ -94,7 +94,7 @@ class CommentController extends Controller
                 $valimsg = $validator->messages();
                 if ($valimsg->has('content')) {
                     $code = 1001;
-                    $info = $valimsg->first('coontent');
+                    $info = $valimsg->first('content');
                 } else if ($valimsg->has('parent_id')) {
                     $code = 1002;
                     $info = $valimsg->first('parent_id');
