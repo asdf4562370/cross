@@ -143,4 +143,42 @@ class CommentController extends Controller
 
     }
 
+    public function pull(Request $request)
+    {
+        if (is_null($request->uid)) {
+            $code = 1000;
+            $info = "token does not exit";
+        } else {
+            $perPage = 10;
+            $commentObj = VideoComment::where(['pid' => $request->pid])->where('parent_id', '==', 0)->paginate($perPage);
+            if ($commentObj->isNotEmpty()) {
+                $info = "";
+                $code = 200;
+                $comments = $commentObj->toArray();
+                $list1 = $comments["data"];
+                for ($i = 0; $i < count($list1); $i++) {
+                    $data1[$i]["content"] = $list1[$i]["content"];
+                    $data1[$i]["nickname"] = $list1[$i]["nickname"];
+                    $data1[$i]["created_at"] = $list1[$i]["created_at"];
+                    $data1[$i]["id"] = $list1[$i]["id"];
+                }
+            } else {
+                $code = 1001;
+                $info = "暂无评论";
+            }
+            $replyObj = VideoComment::where(['pid' => $request->pid])->where('parent_id', '!=', 0)->paginate($perPage);
+            if ($replyObj->isNotEmpty()) {
+                $replies = $replyObj->toarray();
+                $list2 = $replies["data"];
+                for ($i = 0; $i < count($list2); $i++) {
+                    $data2[$i]["content"] = $list2[$i]["content"];
+                    $data2[$i]["nickname"] = $list2[$i]["nickname"];
+                    $data2[$i]["created_at"] = $list2[$i]["created_at"];
+                    $data2[$i]["parent_id"] = $list2[$i]["parent_id"];
+                }
+            }
+        }
+        return response()->json(compact('code', 'info', 'data1','data2'));
+    }
+
 }
