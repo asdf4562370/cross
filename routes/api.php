@@ -18,6 +18,10 @@ Route::group(['middleware' => ['signature']], function () {
             Route::post('comment', 'CommentController@comment');
             //回复评论
             Route::post('reply', 'CommentController@reply');
+            //点赞&取消点赞评论
+            Route::post('comment-like', 'CommentController@like');
+            //点赞评论
+            Route::post('comment-list', 'CommentController@list');
 
         });
 

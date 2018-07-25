@@ -140,7 +140,130 @@ class CommentController extends Controller
         }
 
         return response()->json(compact('code', 'info', 'data'));
-
     }
+
+    public function like(Request $request) {
+        if (is_null($request->uid)) {
+            $code = 1000;
+            $info = "token does not exit";
+        } else {
+            $validator = Validator::make($request->all(), [
+                'comment_id' => 'required',
+            ], [
+                'comment_id.required' => 'comment_id不能为空',
+            ]);
+            if ($validator->fails()) {
+                $valimsg = $validator->messages();
+                if ($valimsg->has('comment_id')) {
+                    $code = 1002;
+                    $info = $valimsg->first('comment_id');
+                } else {
+                    $code = 1001;
+                    $info = "未知错误";
+                }
+            } else {
+                $comment_id = $request->input('comment_id');
+                $commentObj = VideoComment::find($comment_id);
+                if (is_null($commentObj)) {
+                    $code = 1003;
+                    $info = "comment_id不正确";
+                } else {
+                    $likeObj = VideoCommentLike::where(['comment_id' => $comment_id, 'created_by' => $request->uid])->first();
+                    if (is_null($likeObj)) {
+                        //点赞
+                        $theObj = VideoCommentLike::create([
+                            'comment_id' => $comment_id,
+                            'created_by' => $request->uid,
+                        ]);
+                        if ($theObj) {
+                            CommentHelper::updateLike($comment_id);
+                            $code = 200;
+                            $info = "点赞成功";
+                        } else {
+                            $code = 1003;
+                            $info = "点赞失败";
+                        }
+                    } else {
+                        //取消点赞
+                        $affected = $likeObj->delete();
+                        if ($affected) {
+                            CommentHelper::updateLike($comment_id);
+                            $code = 200;
+                            $info = "取消成功";
+                        } else {
+                            $code = 1004;
+                            $info = "取消失败";
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return response()->json(compact('code', 'info', 'data'));
+    }
+
+    /**
+     * 评论列表
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function list(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'pid' => 'required',
+        ], [
+            'pid.required' => 'pid不能为空',
+        ]);
+
+        if ($validator->fails()) {
+            $valimsg = $validator->messages();
+            if ($valimsg->has('pid')) {
+                $code = 1002;
+                $info = $valimsg->first('pid');
+            } else {
+                $code = 1001;
+                $info = "未知错误";
+            }
+        } else {
+            $perPage = 20;
+            $pid = $request->input('pid');
+            $code = 200;
+            $data = [];
+            Carbon::setLocale('zh');
+            $commentObj = VideoComment::where(["pid"=>$pid,"parent_id"=>0])->orderBy('created_at', 'desc')->paginate($perPage);
+            if ($commentObj->isNotEmpty()) {
+                $info = "non-nil";
+                $results = $commentObj->toArray();
+                $result = $results["data"];
+                for ($i=0;$i<count($result);$i++) {
+                    $data[$i]["comment_id"] = $result[$i]["id"];
+                    $data[$i]["pid"] = $result[$i]["pid"];
+                    $data[$i]["like_num"] = $result[$i]["like_num"];
+                    $data[$i]["content"] = $result[$i]["content"];
+                    $data[$i]["nickname"] = $result[$i]["nickname"];
+                    $data[$i]["created_by"] = $result[$i]["created_by"];
+                    $data[$i]["date"] = Carbon::parse($result[$i]["created_at"])->diffForHumans();
+                    $data[$i]["reply"] = [];
+                    $replyObj = VideoComment::where(["parent_id"=>$result[$i]["id"]])->orderBy('created_at', 'desc')->get();
+                    if ($replyObj->isNotEmpty()) {
+                        $reply = $replyObj->toArray();
+                        for ($j=0;$j<count($reply);$j++) {
+                            if ($j < 10) {
+                                //只显示最后回复的10条，多出的就抛弃
+                                $data[$i]["reply"][$j]["content"] = $reply[$j]["content"];
+                                $data[$i]["reply"][$j]["nickname"] = $reply[$j]["nickname"];
+                                $data[$i]["reply"][$j]["created_by"] = $reply[$j]["created_by"];
+                            }
+                        }
+                    }
+                }
+            } else {
+                $info = "nil";
+            }
+        }
+
+        return response()->json(compact('code', 'info', 'data'));
+    }
+
 
 }
