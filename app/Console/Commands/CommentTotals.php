@@ -63,7 +63,7 @@ class CommentTotals extends Command
                 //---更新点赞数---\
                 if ($likeCount != $commentObj->like_num) {
                     //点赞数与统计不相符，则更新点赞数
-                    $commentObj->update(["like_num"=>$likeCount]);
+                    $commentObj->update(["like_num" => $likeCount]);
                 }
                 //---更新点赞数---/
 
