@@ -8,64 +8,73 @@
 
 namespace App\Http\Controllers\Api\Videos;
 
+use App\Classes\CommentHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Video;
+use App\Models\VideoComment;
+use App\Models\VideoCommentLike;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\VideoComment;
-use App\Models\Video;
-use Carbon\Carbon;
 
 class CommentController extends Controller
 {
-    public function comment(Request $request)
-    {
+    public function comment(Request $request) {
         if (is_null($request->uid)) {
             $code = 1000;
-            $info = "token does not exit";
+            $info = "Token does not exist";
         } else {
             $validator = Validator::make($request->all(), [
-                'content' => ['required', 'max:200'],
                 'pid' => 'required',
+                'content' => ['required','max:200'],
                 'nickname' => 'required',
             ], [
-                'content.required' => '评论不能为空',
-                'pid.required' => '视频pid不能为空',
-                'content.max' => '评论长度不能超过200字',
+                'pid.required' => 'pid不能为空',
+                'content.required' => '评论内容不能为空',
+                'content.max' => '评论内容不能超过200字',
                 'nickname.required' => '昵称不能为空',
             ]);
 
             if ($validator->fails()) {
                 $valimsg = $validator->messages();
-                if ($valimsg->has('content')) {
+                if ($valimsg->has('pid')) {
+                    $code = 1001;
+                    $info = $valimsg->first('pid');
+                } elseif ($valimsg->has('content')) {
                     $code = 1002;
                     $info = $valimsg->first('content');
-                } else if ($valimsg->has('pid')) {
+                } elseif ($valimsg->has('nickname')) {
                     $code = 1003;
-                    $info = $valimsg->first('pid');
-                } else if ($valimsg->has('nickname')) {
-                    $code = 1004;
                     $info = $valimsg->first('nickname');
                 } else {
-                    $code = 1005;
+                    $code = 1006;
                     $info = "未知错误";
                 }
             } else {
+                $pid = $request->input('pid');
                 $content = $request->input('content');
                 $nickname = $request->input('nickname');
-                $pid = $request->input('pid');
-                $videoComObj = videoComment::create([
-                    'pid' => $pid,
-                    'parent_id' => 0,
-                    'content' => $content,
-                    'created_by' => $request->uid,
-                    'nickname' => $nickname,
-                ]);
-                if ($videoComObj) {
-                    $code = 200;
-                    $info = "评论成功";
+
+                $videoObj = Video::where(['pid'=>$pid])->first();
+                if (is_null($videoObj)) {
+                    $code = 1004;
+                    $info = 'pid不正确';
                 } else {
-                    $code = 1001;
-                    $info = "数据连接失败";
+                    $videoCommentObj = VideoComment::create([
+                        'pid' => $pid,
+                        'parent_id' => 0,
+                        'content' => $content,
+                        'nickname' => $nickname,
+                        'created_by' => $request->uid,
+                    ]);
+                    if ($videoCommentObj) {
+                        CommentHelper::updateTotals($videoCommentObj->id);
+                        $code = 200;
+                        $info = '评论成功';
+                    } else {
+                        $code = 1005;
+                        $info = '评论失败';
+                    }
                 }
             }
         }
@@ -73,8 +82,7 @@ class CommentController extends Controller
         return response()->json(compact('code', 'info', 'data'));
     }
 
-    public function reply(Request $request)
-    {
+    public function reply(Request $request) {
         if (is_null($request->uid)) {
             $code = 1000;
             $info = "token does not exit";
@@ -87,8 +95,8 @@ class CommentController extends Controller
             ], [
                 'content.required' => '内容不能为空',
                 'content.max' => '回复内容最多不超过200个字',
-                'pid.required' => '视频pid不能为空',
-                'parent_id.required' => '这条评论不存在或被删除',
+                'pid.required' => 'pid不能为空',
+                'parent_id.required' => 'parent_id不能为空',
                 'nickname' => '昵称不能为空',
             ]);
             if ($validator->fails()) {
@@ -105,6 +113,9 @@ class CommentController extends Controller
                 } else if ($valimsg->has('nickname')) {
                     $code = 1004;
                     $info = $valimsg->first('nickname');
+                } else {
+                    $code = 1008;
+                    $info = "未知错误";
                 }
             } else {
                 $pid = $request->input('pid');
@@ -119,7 +130,7 @@ class CommentController extends Controller
                     $videoComObj = VideoComment::where(['id' => $parentId])->first();
                     if (is_null($videoComObj)) {
                         $code = 1006;
-                        $info = "评论不存在或被删除";
+                        $info = "parent_id不正确";
                     } else {
                         $replyObj = VideoComment::create([
                             'pid' => $pid,
@@ -177,7 +188,7 @@ class CommentController extends Controller
                             'created_by' => $request->uid,
                         ]);
                         if ($theObj) {
-                            CommentHelper::updateLike($comment_id);
+                            CommentHelper::updateTotals($comment_id);
                             $code = 200;
                             $info = "点赞成功";
                         } else {
@@ -188,7 +199,7 @@ class CommentController extends Controller
                         //取消点赞
                         $affected = $likeObj->delete();
                         if ($affected) {
-                            CommentHelper::updateLike($comment_id);
+                            CommentHelper::updateTotals($comment_id);
                             $code = 200;
                             $info = "取消成功";
                         } else {
@@ -197,7 +208,6 @@ class CommentController extends Controller
                         }
                     }
                 }
-
             }
         }
 
@@ -257,6 +267,19 @@ class CommentController extends Controller
                             }
                         }
                     }
+                    if (is_null($request->uid)) {
+                        $data[$i]["has_like"] = "false";
+                    } else {
+                        $likeObj = VideoCommentLike::where([
+                            "comment_id" => $result[$i]["id"],
+                            "created_by" => $request->uid,
+                        ])->first();
+                        if (is_null($likeObj)) {
+                            $data[$i]["has_like"] = "false";
+                        } else {
+                            $data[$i]["has_like"] = "true";
+                        }
+                    }
                 }
             } else {
                 $info = "nil";
@@ -266,42 +289,5 @@ class CommentController extends Controller
         return response()->json(compact('code', 'info', 'data'));
     }
 
-    public function pull(Request $request)
-    {
-        if (is_null($request->uid)) {
-            $code = 1000;
-            $info = "token does not exit";
-        } else {
-            $perPage = 10;
-            $commentObj = VideoComment::where(['pid' => $request->pid])->where('parent_id', '==', 0)->paginate($perPage);
-            if ($commentObj->isNotEmpty()) {
-                $info = "";
-                $code = 200;
-                $comments = $commentObj->toArray();
-                $list1 = $comments["data"];
-                for ($i = 0; $i < count($list1); $i++) {
-                    $data1[$i]["content"] = $list1[$i]["content"];
-                    $data1[$i]["nickname"] = $list1[$i]["nickname"];
-                    $data1[$i]["created_at"] = $list1[$i]["created_at"];
-                    $data1[$i]["id"] = $list1[$i]["id"];
-                }
-            } else {
-                $code = 1001;
-                $info = "暂无评论";
-            }
-            $replyObj = VideoComment::where(['pid' => $request->pid])->where('parent_id', '!=', 0)->paginate($perPage);
-            if ($replyObj->isNotEmpty()) {
-                $replies = $replyObj->toarray();
-                $list2 = $replies["data"];
-                for ($i = 0; $i < count($list2); $i++) {
-                    $data2[$i]["content"] = $list2[$i]["content"];
-                    $data2[$i]["nickname"] = $list2[$i]["nickname"];
-                    $data2[$i]["created_at"] = $list2[$i]["created_at"];
-                    $data2[$i]["parent_id"] = $list2[$i]["parent_id"];
-                }
-            }
-        }
-        return response()->json(compact('code', 'info', 'data1','data2'));
-    }
 
 }

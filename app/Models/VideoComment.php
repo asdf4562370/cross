@@ -18,6 +18,7 @@ class VideoComment extends Model
         'pid',
         'parent_id',
         'content',
+        'like_num',
         'nickname',
         'created_by',
     ];
