@@ -192,7 +192,7 @@ class CommentController extends Controller
                             $code = 200;
                             $info = "点赞成功";
                         } else {
-                            $code = 1003;
+                            $code = 1004;
                             $info = "点赞失败";
                         }
                     } else {
@@ -203,7 +203,7 @@ class CommentController extends Controller
                             $code = 200;
                             $info = "取消成功";
                         } else {
-                            $code = 1004;
+                            $code = 1005;
                             $info = "取消失败";
                         }
                     }
