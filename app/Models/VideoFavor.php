@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class VideoCollect extends Model
+class VideoFavor extends Model
 {
-    protected $table = 'videos_collect';
+    protected $table = 'videos_favor';
 
     protected $fillable = [
         'pid',

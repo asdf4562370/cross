@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Api\Videos;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\VideoCollect;
+use App\Models\VideoFavor;
 use App\Models\Video;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
-class CollectController extends Controller
+class FavorController extends Controller
 {
     public function collect(Request $request)
     {
@@ -39,9 +39,9 @@ class CollectController extends Controller
                     $info = "该视频id不存在";
                 } else {
                     $title = $videoObj->title;
-                    $videoColObj = VideoCollect::where(['pid' => $pid])->first();
+                    $videoColObj = VideoFavor::where(['pid' => $pid])->first();
                     if (is_null($videoColObj)) {
-                        $theObj = VideoCollect::create([
+                        $theObj = VideoFavor::create([
                             'pid' => $pid,
                             'created_by' => $request->uid,
                             'title' => $title,
@@ -87,7 +87,7 @@ class CollectController extends Controller
                 }
             } else {
                 $pid = $request->input('pid');
-                $videoColObj = VideoCollect::where(['pid' => $pid])->first();
+                $videoColObj = VideoFavor::where(['pid' => $pid])->first();
                 if (!is_null($videoColObj)) {
                     $theObj = $videoColObj->delete();
                     if ($theObj) {
@@ -114,15 +114,15 @@ class CollectController extends Controller
             $data = [];
             $perpage = 10;
             Carbon::setLocale('zh');
-            $videoColObj = VideoCollect::where(['created_by' => $request->uid])->orderBy('created_at', 'desc')->paginate($perpage);
+            $videoColObj = VideoFavor::where(['created_by' => $request->uid])->orderBy('created_at', 'desc')->paginate($perpage);
             if ($videoColObj->isNotEmpty()) {
                 $info = "";
-                $collections = $videoColObj->toArray();
-                $collection = $collections["data"];
-                for ($i = 0; $i < count($collection); $i++) {
-                    $data[$i]['pid'] = $collection[$i]['pid'];
-                    $data[$i]['title'] = $collection[$i]['title'];
-                    $data[$i]['date'] = Carbon::parse($collection[$i]['created_at'])->diffForHumans();
+                $favors = $videoColObj->toArray();
+                $favor = $favors["data"];
+                for ($i = 0; $i < count($favor); $i++) {
+                    $data[$i]['pid'] = $favor[$i]['pid'];
+                    $data[$i]['title'] = $favor[$i]['title'];
+                    $data[$i]['date'] = Carbon::parse($favor[$i]['created_at'])->diffForHumans();
                 }
             } else {
                 $info = "暂无收藏视频";

@@ -16,7 +16,8 @@ use Illuminate\Http\Request;
 class BillController extends Controller
 {
 
-    public function dailyBill(Request $request) {
+    public function dailyBill(Request $request)
+    {
         if (is_null($request->uid)) {
             $code = 1000;
             $info = "Token does not exist";
@@ -24,12 +25,12 @@ class BillController extends Controller
             $info = "";
             Carbon::setLocale('zh');
             $expiresAt = Carbon::now()->subDays(30);
-            $billObj = Bill::where(["created_by"=>$request->uid])->where('created_at','>=',$expiresAt->toDateTimeString())->orderBy('created_at', 'desc')->get();
+            $billObj = Bill::where(["created_by" => $request->uid])->where('created_at', '>=', $expiresAt->toDateTimeString())->orderBy('created_at', 'desc')->get();
             $bill = [];
             if ($billObj->isNotEmpty()) {
                 $bill = $billObj->toArray();
             }
         }
-        return view('trade.daily_bill', compact('bill','info'));
+        return view('trade.daily_bill', compact('bill', 'info'));
     }
 }

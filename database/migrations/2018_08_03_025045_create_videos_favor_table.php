@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateVideosCollectTable extends Migration
+class CreateVideosFavorTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateVideosCollectTable extends Migration
      */
     public function up()
     {
-        Schema::create('videos_collect', function (Blueprint $table) {
+        Schema::create('videos_favor', function (Blueprint $table) {
             $table->increments('id');
             $table->char('pid', '24')->index()->comment('视频ID');
             $table->string('title', 100)->comment('标题');
@@ -29,6 +29,6 @@ class CreateVideosCollectTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('videos_collect');
+        Schema::dropIfExists('videos_favor');
     }
 }

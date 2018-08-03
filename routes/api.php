@@ -24,11 +24,11 @@ Route::group(['middleware' => ['signature']], function () {
             Route::post('comment-list', 'CommentController@list');
 
             //视频收藏
-            Route::post('video-collect', 'CollectController@collect');
+            Route::post('video-favor', 'FavorController@collect');
             //取消收藏
-            Route::post('video-del', 'CollectController@del');
+            Route::post('video-del', 'FavorController@del');
             //我的收藏
-            Route::post('video-list', 'CollectController@list');
+            Route::post('video-list', 'FavorController@list');
 
         });
 
