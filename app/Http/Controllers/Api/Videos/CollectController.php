@@ -60,6 +60,7 @@ class CollectController extends Controller
                 }
             }
         }
+
         return response()->json(compact('code', 'info'));
     }
 
@@ -99,6 +100,7 @@ class CollectController extends Controller
                 }
             }
         }
+
         return response()->json(compact('code', 'info'));
     }
 
@@ -109,23 +111,24 @@ class CollectController extends Controller
             $info = "token does not exit";
         } else {
             $code = 200;
-            $data=[];
-            $perpage=10;
+            $data = [];
+            $perpage = 10;
             Carbon::setLocale('zh');
-            $videoColObj=VideoCollect::where(['created_by'=>$request->uid])->orderBy('created_at','desc')->paginate($perpage);
-            if($videoColObj->isNotEmpty()){
+            $videoColObj = VideoCollect::where(['created_by' => $request->uid])->orderBy('created_at', 'desc')->paginate($perpage);
+            if ($videoColObj->isNotEmpty()) {
                 $info = "";
-                $collections=$videoColObj->toArray();
-                $collection=$collections["data"];
-                for($i=0;$i<count($collection);$i++){
-                    $data[$i]['pid']=$collection[$i]['pid'];
-                    $data[$i]['title']=$collection[$i]['title'];
-                    $data[$i]['date']=Carbon::parse($collection[$i]['created_at'])->diffForHumans();
-                    }
-            }else{
+                $collections = $videoColObj->toArray();
+                $collection = $collections["data"];
+                for ($i = 0; $i < count($collection); $i++) {
+                    $data[$i]['pid'] = $collection[$i]['pid'];
+                    $data[$i]['title'] = $collection[$i]['title'];
+                    $data[$i]['date'] = Carbon::parse($collection[$i]['created_at'])->diffForHumans();
+                }
+            } else {
                 $info = "暂无收藏视频";
             }
         }
-        return response()->json(compact('code','info','data'));
+
+        return response()->json(compact('code', 'info', 'data'));
     }
 }
