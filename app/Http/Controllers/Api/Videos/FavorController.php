@@ -11,7 +11,7 @@ use Carbon\Carbon;
 
 class FavorController extends Controller
 {
-    public function collect(Request $request)
+    public function favor(Request $request)
     {
         if (is_null($request->uid)) {
             $code = 1000;

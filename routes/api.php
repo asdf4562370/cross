@@ -24,7 +24,7 @@ Route::group(['middleware' => ['signature']], function () {
             Route::post('comment-list', 'CommentController@list');
 
             //视频收藏
-            Route::post('video-favor', 'FavorController@collect');
+            Route::post('video-favor', 'FavorController@favor');
             //取消收藏
             Route::post('video-del', 'FavorController@del');
             //我的收藏
